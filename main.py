@@ -1,3 +1,43 @@
+def OLEDDisplay():
+    global ZeitOLEDWechsel, SchrittNummerOLED
+    if OledDauer >= OLEDBearbeiten:
+        ZeitOLEDWechsel = ZeitAktuell
+        if SchrittNummerOLED == 1:
+            oledssd1306.set_text_xy(0, 0)
+            oledssd1306.write_string("Geschwindigkeit: ")
+            oledssd1306.write_number(Geschwindigkeit)
+            SchrittNummerOLED = 2
+        elif SchrittNummerOLED == 2:
+            oledssd1306.set_text_xy(1, 0)
+            oledssd1306.write_string("Entfernung: ")
+            oledssd1306.write_number(calliBot2.entfernung(C2Einheit.CM))
+            SchrittNummerOLED = 3
+        elif SchrittNummerOLED == 3:
+            oledssd1306.set_text_xy(2, 0)
+            oledssd1306.write_string("Lichtstärke: ")
+            oledssd1306.write_number(input.light_level())
+            SchrittNummerOLED = 4
+        elif SchrittNummerOLED == 4:
+            oledssd1306.set_text_xy(3, 0)
+            oledssd1306.write_string("Temperatur: ")
+            oledssd1306.write_number(input.temperature())
+            SchrittNummerOLED = 4
+        elif SchrittNummerOLED == 5:
+            oledssd1306.set_text_xy(4, 0)
+            oledssd1306.write_string("Lautstärke: ")
+            oledssd1306.write_number(input.sound_level())
+            SchrittNummerOLED = 6
+        elif SchrittNummerOLED == 6:
+            oledssd1306.set_text_xy(5, 0)
+            oledssd1306.write_string("Kompass: ")
+            oledssd1306.write_number(input.compass_heading())
+            SchrittNummerOLED = 7
+        elif SchrittNummerOLED == 7:
+            oledssd1306.set_text_xy(6, 0)
+            oledssd1306.write_string("Beschleunigung: ")
+            oledssd1306.write_number(input.acceleration(Dimension.STRENGTH))
+            SchrittNummerOLED = 7
+
 def on_button_a():
     global Start, Programm, SchrittnummerGlobal, GeschwindigkeitAlt
     Start = 0
@@ -34,7 +74,6 @@ def on_button_b():
         Start = 0
         GeschwindigkeitAlt = -1
 input.on_button_event(Button.B, input.button_event_click(), on_button_b)
-
 
 def on_pin_touch_p0():
     global Geschwindigkeit
@@ -76,13 +115,12 @@ def AnzeigeProgramm():
                         # # . . #
                         . . . # .
         """)
-
 def LEDAnsteuerung():
     global SchrittNummerLED, ZeitBelWechsel, BelBlau, BelGruen, BelRot, SchrittnummerGlobal, GeschwindigkeitAlt
     if Start == 1:
         if SchrittNummerLED == 1:
             SchrittNummerLED = 2
-            ZeitBelWechsel = control.millis()
+            ZeitBelWechsel = ZeitAktuell
             calliBot2.set_rgb_led(C2RgbLed.LV, BelRot, BelGruen, BelBlau)
             calliBot2.set_rgb_led(C2RgbLed.LH, 0, 0, 0)
         elif SchrittNummerLED == 2:
@@ -341,50 +379,6 @@ def LEDAnsteuerung():
                                         . . . . .
                 """)
 
-def OLEDDisplay():
-    global ZeitBelWechsel, BelBlau, BelGruen, BelRot, SchrittnummerGlobal, GeschwindigkeitAlt
-    if SchrittNummerOLED == 1:
-        SchrittNummerOLED = 2
-        ZeitBelWechsel = control.millis()
-        calliBot2.set_rgb_led(C2RgbLed.LV, BelRot, BelGruen, BelBlau)
-        calliBot2.set_rgb_led(C2RgbLed.LH, 0, 0, 0)
-    elif SchrittNummerOLED == 2:
-        if BelDauer >= BelWechsel:
-            SchrittNummerOLED = 3
-            ZeitBelWechsel = ZeitAktuell
-            calliBot2.set_rgb_led(C2RgbLed.LV, 0, 0, 0)
-            calliBot2.set_rgb_led(C2RgbLed.RV, BelRot, BelGruen, BelBlau)
-    elif SchrittNummerOLED == 3:
-        if BelDauer >= BelWechsel:
-            SchrittNummerOLED = 4
-            ZeitBelWechsel = ZeitAktuell
-            calliBot2.set_rgb_led(C2RgbLed.RV, 0, 0, 0)
-            calliBot2.set_rgb_led(C2RgbLed.RH, BelRot, BelGruen, BelBlau)
-    elif SchrittNummerOLED == 4:
-        if BelDauer >= BelWechsel:
-            SchrittNummerOLED = 5
-            ZeitBelWechsel = ZeitAktuell
-            calliBot2.set_rgb_led(C2RgbLed.RH, 0, 0, 0)
-            calliBot2.set_rgb_led(C2RgbLed.LH, BelRot, BelGruen, BelBlau)
-    elif SchrittNummerOLED == 5:
-        if BelDauer >= BelWechsel:
-            SchrittNummerOLED = 1
-            ZeitBelWechsel = ZeitAktuell
-            if BelRot > 0:
-                BelBlau = 0
-                BelGruen = 16
-                BelRot = 0
-            elif BelGruen > 0:
-                BelBlau = 16
-                BelGruen = 0
-                BelRot = 0
-            elif BelBlau > 0:
-                BelBlau = 0
-                BelGruen = 0
-                BelRot = 16
-    else:
-        calliBot2.set_rgb_led(C2RgbLed.ALL, 0, 0, 0)
-    
 def on_pin_touch_p3():
     global Geschwindigkeit
     Geschwindigkeit = Geschwindigkeit + 4
@@ -393,35 +387,43 @@ def on_pin_touch_p3():
 input.on_pin_touch_event(TouchPin.P3, input.button_event_down(), on_pin_touch_p3)
 
 SchrittnummerGlobalAlt = 0
+Entfernung = 0
 Entf1 = 0
 Entf2 = 0
 Entf3 = 0
-Entfernung = 0
-GeschwindigkeitUS = 0
+IstZeitPause = 0
 BelDauer = 0
 BelBlau = 0
 BelGruen = 0
 BelRot = 0
 ZeitBelWechsel = 0
 SchrittNummerLED = 0
-SuchZeit = 0
-IstZeitPause = 0
-ZeitAktuell = 0
-StartZeitPause = 0
-ZeitPause = 0
-Geschwindigkeit = 0
 SchrittNeu = 0
 GeschwindigkeitAlt = 0
 SchrittnummerGlobal = 0
 Programm = 0
 Start = 0
+Geschwindigkeit = 0
+SchrittNummerOLED = 0
+ZeitAktuell = 0
+ZeitOLEDWechsel = 0
+OledDauer = 0
+OLEDBearbeiten = 0
 BelWechsel = 0
+ZeitPause = 0
+SuchZeit = 0
+GeschwindigkeitUS = 0
 BelWechsel = 100
+OLEDBearbeiten = 500
+oledssd1306.init_display()
+oledssd1306.clear_display()
 
 def on_forever():
-    global ZeitAktuell, BelDauer, IstZeitPause, Entf3, Entf2, Entf1, Entfernung, Geschwindigkeit, Programm, SchrittnummerGlobal, Start, SchrittNeu, SchrittnummerGlobalAlt
+    global ZeitAktuell, BelDauer, OledDauer, IstZeitPause, Entf3, Entf2, Entf1, Entfernung, Geschwindigkeit, Programm, SchrittnummerGlobal, Start, SchrittNeu, SchrittnummerGlobalAlt
+    StartZeitPause = 0
     ZeitAktuell = control.millis()
     BelDauer = ZeitAktuell - ZeitBelWechsel
+    OledDauer = ZeitAktuell - ZeitOLEDWechsel
     IstZeitPause = ZeitAktuell - StartZeitPause
     Entf3 = Entf2
     Entf2 = Entf1
@@ -448,4 +450,5 @@ def on_forever():
         SchrittNeu = 1
     SchrittnummerGlobalAlt = SchrittnummerGlobal
     LEDAnsteuerung()
+    OLEDDisplay()
 basic.forever(on_forever)

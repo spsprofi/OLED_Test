@@ -3,8 +3,8 @@
     "description": "",
     "dependencies": {
         "core": "*",
-        "pxt-oledpaint": "github:mkleinsb/pxt-oledpaint#v1.2.1",
-        "callibot": "github:mkleinsb/pxt-callibot#v2.1.1"
+        "callibot": "github:mkleinsb/pxt-callibot#v2.1.1",
+        "pxt-oled-ssd1306": "github:mkleinsb/pxt-oled-ssd1306#v1.0.1"
     },
     "files": [
         "main.blocks",
